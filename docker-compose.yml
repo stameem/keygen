@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYGEN_URL=http://keygen:5001
+      - PDF_URL=http://pdf:5002
+    depends_on:
+      - keygen
+      - pdf
+      - db
+
+  keygen:
+    build: ./keygen
+    ports:
+      - "5001:5001"
+
+  pdf:
+    build: ./pdf
+    ports:
+      - "5002:5002"
+    environment:
+      - DB_HOST=db
+      - DB_USER=btcuser
+      - DB_PASS=btcpass
+      - DB_NAME=btcdb
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: btcdb
+      MYSQL_USER: btcuser
+      MYSQL_PASSWORD: btcpass
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  db_data:
